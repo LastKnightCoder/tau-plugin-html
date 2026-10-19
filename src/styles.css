@@ -1,9 +1,15 @@
-/* SVG 随样式内联，安装后无需额外复制资源。 */
-.example-counter::before {
-  content: "";
-  display: block;
-  width: 20px;
-  height: 20px;
-  background: var(--tau-accent);
-  mask: url("./counter.svg") center / contain no-repeat;
+.tau-html-inline {
+  display: inline-block;
+  vertical-align: baseline;
+}
+.tau-html-trigger {
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+.tau-html-input {
+  width: 500px;
+  max-width: calc(100vw - 16px);
+  padding: 8px;
 }
