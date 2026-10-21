@@ -1,3 +1,8 @@
+---
+name: "HTML 片段"
+description: "在用户要求编写或修改行内、块级 HTML 片段时使用。"
+---
+
 # HTML 行内与块级片段
 
 需要嵌入自定义 HTML 时使用。块级 html-block 和行内 html-inline 共同提供 HTML 编辑与预览，源码保存在 html 字段。
