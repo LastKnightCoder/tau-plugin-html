@@ -1,5 +1,7 @@
 # HTML 插件开发
 
+当前依赖、平台边界与验证步骤见 [兼容性说明](COMPATIBILITY.md)。
+
 需要 Node.js 22 或更高版本和 pnpm 11.9.0。
 
 ```sh
