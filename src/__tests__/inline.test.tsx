@@ -5,14 +5,14 @@ import { HtmlInline } from "../editor/HtmlInline";
 
 const state = vi.hoisted(() => ({
   readOnly: false,
-  touch: false,
+  coarsePointer: false,
   outerKeyDown: vi.fn(),
   update: vi.fn(),
   remove: vi.fn(),
 }));
 vi.mock("@tau/plugins", () => ({
   useInlineSource: () => state,
-  usePluginEnvironment: () => ({ input: { touch: state.touch } }),
+  usePluginEnvironment: () => ({ input: { coarsePointer: state.coarsePointer } }),
   InlineSourceBoundary: () => <span />,
 }));
 vi.mock("@tau/ui", () => ({
@@ -73,7 +73,7 @@ afterEach(async () => {
   await act(async () => root?.unmount());
   host?.remove();
   state.readOnly = false;
-  state.touch = false;
+  state.coarsePointer = false;
   vi.clearAllMocks();
 });
 it("只读内容忽略 openEdit，不能打开编辑或回写", async () => {
@@ -104,7 +104,7 @@ it("空白输入确认后删除节点", async () => {
 });
 
 it("触摸编辑取消不保存草稿，输入事件不冒泡到正文", async () => {
-  state.touch = true;
+  state.coarsePointer = true;
   await show();
   await input("<i>未保存</i>");
   await enter();
@@ -118,7 +118,7 @@ it("触摸编辑取消不保存草稿，输入事件不冒泡到正文", async (
 });
 
 it("触摸编辑通过明确保存按钮提交源码", async () => {
-  state.touch = true;
+  state.coarsePointer = true;
   await show();
   await input(" <i>手机保存</i> ");
   const save = [...host.querySelectorAll("button")].find(button => button.textContent === "保存")!;

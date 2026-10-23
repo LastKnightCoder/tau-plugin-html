@@ -15,7 +15,7 @@ export function HtmlInline({
   element,
 }: EditorElementRenderProps<HtmlInlineElement>) {
   const { readOnly, update, remove, compiler } = useInlineSource(element);
-  const touch = usePluginEnvironment().input.touch;
+  const coarsePointer = usePluginEnvironment().input.coarsePointer;
   const [draft, setDraft] = useState(element.html);
   const [open, setOpen] = useState(!readOnly && !!element.openEdit);
   const input = useRef<HTMLInputElement>(null);
@@ -56,7 +56,7 @@ export function HtmlInline({
       {css && <style dangerouslySetInnerHTML={{ __html: css }} />}
       {readOnly ? (
         <span contentEditable={false}>{preview}</span>
-      ) : touch ? (
+      ) : coarsePointer ? (
         <>
           <button type="button" contentEditable={false} className="tau-html-trigger" aria-label="编辑行内 HTML" onClick={() => { setDraft(element.html); setOpen(true); }}>
             {preview}

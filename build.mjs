@@ -99,7 +99,7 @@ try {
   await writeFile(
     path.join(staging, "manifest.json"),
     JSON.stringify(
-      buildPortablePluginManifest({ ...manifest, ...(skills.ids.length ? { skills: skills.ids } : {}), integrity, ...(styles ? { styles: "main.css" } : {}) }),
+      buildPortablePluginManifest(manifest, { main: "main.js", ...(skills.ids.length ? { skills: skills.ids } : {}), integrity, ...(styles ? { styles: "main.css" } : {}) }),
       null,
       2,
     ),
