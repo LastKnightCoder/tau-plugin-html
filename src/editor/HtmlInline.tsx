@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import {
   InlineSourceBoundary,
   useInlineSource,
+  usePluginEnvironment,
   type EditorElementRenderProps,
 } from "@tau/plugins";
-import { Input, Popover } from "@tau/ui";
+import { Button, Dialog, DialogBody, Input, Popover } from "@tau/ui";
 import { useRuntimeCss } from "../render/useRuntimeCss";
 import type { HtmlInlineElement } from "./types";
 
@@ -14,6 +15,7 @@ export function HtmlInline({
   element,
 }: EditorElementRenderProps<HtmlInlineElement>) {
   const { readOnly, update, remove, compiler } = useInlineSource(element);
+  const touch = usePluginEnvironment().input.touch;
   const [draft, setDraft] = useState(element.html);
   const [open, setOpen] = useState(!readOnly && !!element.openEdit);
   const input = useRef<HTMLInputElement>(null);
@@ -35,6 +37,11 @@ export function HtmlInline({
     }
     setOpen(false);
   };
+  const cancel = () => {
+    setDraft(element.html);
+    setOpen(false);
+    if (!readOnly && element.openEdit) update({ openEdit: false });
+  };
   const preview = (
     <span
       data-tau-html-inline
@@ -49,6 +56,19 @@ export function HtmlInline({
       {css && <style dangerouslySetInnerHTML={{ __html: css }} />}
       {readOnly ? (
         <span contentEditable={false}>{preview}</span>
+      ) : touch ? (
+        <>
+          <button type="button" contentEditable={false} className="tau-html-trigger" aria-label="编辑行内 HTML" onClick={() => { setDraft(element.html); setOpen(true); }}>
+            {preview}
+          </button>
+          <Dialog open={open} onOpenChange={visible => !visible && cancel()} title="编辑行内 HTML" footer={<><Button variant="secondary" onClick={cancel}>取消</Button><Button onClick={close}>保存</Button></>}>
+            <DialogBody>
+              <div onKeyDown={event => event.stopPropagation()} onBeforeInput={event => event.stopPropagation()} onInput={event => event.stopPropagation()} onPaste={event => event.stopPropagation()} onCut={event => event.stopPropagation()} onCopy={event => event.stopPropagation()}>
+                <Input ref={input} value={draft} onChange={event => setDraft(event.target.value)} aria-label="行内 HTML 源码" placeholder="输入 HTML" />
+              </div>
+            </DialogBody>
+          </Dialog>
+        </>
       ) : (
         <Popover
           open={open}

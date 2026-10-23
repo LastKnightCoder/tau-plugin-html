@@ -11,6 +11,7 @@ import {
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { collectSkills } from "./skills.mjs";
+import { buildPortablePluginManifest } from "@tau/plugins/portable";
 
 const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
 if (!/^[a-z0-9]+(?:[.-][a-z0-9]+)+$/.test(manifest.id))
@@ -98,7 +99,7 @@ try {
   await writeFile(
     path.join(staging, "manifest.json"),
     JSON.stringify(
-      { ...manifest, ...(skills.ids.length ? { skills: skills.ids } : {}), integrity, ...(styles ? { styles: "main.css" } : {}) },
+      buildPortablePluginManifest({ ...manifest, ...(skills.ids.length ? { skills: skills.ids } : {}), integrity, ...(styles ? { styles: "main.css" } : {}) }),
       null,
       2,
     ),
