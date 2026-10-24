@@ -4,7 +4,7 @@
   "description": "在文档中编辑行内与块级 HTML，支持 Tailwind 样式、博客发布和静态导出。",
   "categories": ["editor", "ai"],
   "keywords": ["HTML", "网页", "嵌入"],
-  "version": "0.1.7",
+  "version": "0.1.8",
   "targets": {
     "desktop": {
       "minAppVersion": "0.59.4"

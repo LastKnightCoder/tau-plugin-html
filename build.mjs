@@ -1,23 +1,13 @@
 import { build } from "esbuild";
 import AdmZip from "adm-zip";
-import {
-  mkdir,
-  readFile,
-  writeFile,
-  mkdtemp,
-  rename,
-  rm,
-} from "node:fs/promises";
+import { mkdir, readFile, writeFile, mkdtemp, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { collectSkills } from "./skills.mjs";
 import { buildPortablePluginManifest } from "@tau/plugins/portable";
 
 const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
-if (!/^[a-z0-9]+(?:[.-][a-z0-9]+)+$/.test(manifest.id))
-  throw new Error("插件 ID 应为小写字母、数字及点或连字符组成的命名空间");
-if (!/^\d+\.\d+\.\d+(?:-[a-zA-Z0-9.-]+)?$/.test(manifest.version))
-  throw new Error("插件版本无效");
+
 const shared = [
   "@tau/plugins",
   "@tau/plugins/whiteboard",
@@ -36,12 +26,8 @@ const pointer = path.resolve("dist", `.building-pointer-${buildId}`);
 try {
   const readme = await readFile("README.md", "utf8");
   if (!readme.trim()) throw new Error("README.md 必须包含插件介绍与使用说明");
-  if (
-    typeof manifest.description !== "string" ||
-    !manifest.description.trim() ||
-    manifest.description.length > 160
-  )
-    throw new Error("manifest.description 必须为1至160字简介");
+  if (typeof manifest.description !== "string" || !manifest.description.trim())
+    throw new Error("manifest.description 必须为非空简介");
   await writeFile(path.join(staging, "README.md"), readme);
   for (const name of ["CHANGELOG.md"]) {
     try {
@@ -53,7 +39,9 @@ try {
   // 插件中心只接收 LICENSE 一个许可文件，第三方许可全文按顺序附在其后
   const licenses = [];
   for (const name of ["LICENSE", "THIRD_PARTY_NOTICES.md"])
-    licenses.push(`${name === "LICENSE" ? "" : `\n\n----- ${name} -----\n\n`}${await readFile(name, "utf8")}`);
+    licenses.push(
+      `${name === "LICENSE" ? "" : `\n\n----- ${name} -----\n\n`}${await readFile(name, "utf8")}`
+    );
   await writeFile(path.join(staging, "LICENSE"), licenses.join(""));
   const result = await build({
     entryPoints: ["src/index.tsx"],
@@ -81,9 +69,7 @@ try {
         throw new Error(`插件构建包含未支持的外部依赖：${dependency.path}`);
     }
   }
-  const styles = Object.keys(result.metafile.outputs).some((file) =>
-    file.endsWith("main.css"),
-  );
+  const styles = Object.keys(result.metafile.outputs).some(file => file.endsWith("main.css"));
   if (manifest.sync !== undefined)
     throw new Error("同步提供方应在渲染入口注册，不再支持Node后台入口");
   const skills = await collectSkills(staging);
@@ -99,10 +85,15 @@ try {
   await writeFile(
     path.join(staging, "manifest.json"),
     JSON.stringify(
-      buildPortablePluginManifest(manifest, { main: "main.js", ...(skills.ids.length ? { skills: skills.ids } : {}), integrity, ...(styles ? { styles: "main.css" } : {}) }),
+      buildPortablePluginManifest(manifest, {
+        main: "main.js",
+        ...(skills.ids.length ? { skills: skills.ids } : {}),
+        integrity,
+        ...(styles ? { styles: "main.css" } : {}),
+      }),
       null,
-      2,
-    ),
+      2
+    )
   );
   const destination = path.resolve("dist", `${manifest.version}-${buildId}`);
   await rename(staging, destination);
@@ -113,18 +104,15 @@ try {
       id: manifest.id,
       buildId,
       directory: path.basename(destination),
-    }),
+    })
   );
   await rename(pointer, path.resolve("dist", `tau-build-${manifest.id}.json`));
   const zip = new AdmZip();
   zip.addLocalFolder(destination, manifest.id);
-  const archive = path.resolve(
-    "dist",
-    `${manifest.id}-${manifest.version}.zip`,
-  );
+  const archive = path.resolve("dist", `${manifest.id}-${manifest.version}.zip`);
   zip.writeZip(archive);
   console.log(
-    `构建完成：${archive}\n运行 pnpm install:local，或将 ZIP 解压至 ~/.editor/plugins，然后在插件管理中刷新列表并启用。`,
+    `构建完成：${archive}\n运行 pnpm install:local，或将 ZIP 解压至 ~/.editor/plugins，然后在插件管理中刷新列表并启用。`
   );
 } catch (error) {
   await rm(staging, { recursive: true, force: true });
