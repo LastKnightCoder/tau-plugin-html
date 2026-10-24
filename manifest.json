@@ -2,35 +2,18 @@
   "id": "tau.html",
   "name": "HTML",
   "description": "在文档中编辑行内与块级 HTML，支持 Tailwind 样式、博客发布和静态导出。",
-  "categories": [
-    "editor",
-    "ai"
-  ],
-  "keywords": [
-    "HTML",
-    "网页",
-    "嵌入"
-  ],
-  "version": "0.1.6",
-  "requires": [
-    "sourceEditor",
-    "runtimeStyles"
-  ],
-  "editor": {
-    "elements": {
-      "html-block": "edit",
-      "html-inline": "edit"
-    }
-  },
+  "categories": ["editor", "ai"],
+  "keywords": ["HTML", "网页", "嵌入"],
+  "version": "0.1.7",
   "targets": {
     "desktop": {
-      "minAppVersion": "0.59.2"
+      "minAppVersion": "0.59.4"
     },
     "android": {
-      "minAppVersion": "0.2.3"
+      "minAppVersion": "0.2.4"
     },
     "ios": {
-      "minAppVersion": "0.2.3"
+      "minAppVersion": "0.2.4"
     }
   }
 }
