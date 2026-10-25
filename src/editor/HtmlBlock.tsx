@@ -12,7 +12,7 @@ export function HtmlBlock({
   children,
   element,
 }: EditorElementRenderProps<HtmlBlockElement>) {
-  const { update, compiler } = useSourceBlock(element);
+  const { compiler } = useSourceBlock(element);
   const css = useRuntimeCss(element.html, compiler);
   return (
     <div {...attributes}>
@@ -20,8 +20,7 @@ export function HtmlBlock({
         mode="htmlmixed"
         title="HTML"
         icon={CodeXml}
-        initValue={element.html}
-        onChange={(html) => update({ html })}
+        field="html"
         element={element}
         extend
       >

@@ -9,9 +9,11 @@ const state = vi.hoisted(() => ({
   outerKeyDown: vi.fn(),
   update: vi.fn(),
   remove: vi.fn(),
+  input: vi.fn(),
 }));
 vi.mock("@tau/plugins", () => ({
   useInlineSource: () => state,
+  useTextField: () => ({ value: "<b>原文</b>", readOnly: state.readOnly, ready: true, error: null, inputRef: (input: HTMLInputElement | null) => { if (input) input.oninput = () => state.input(input.value); } }),
   usePluginEnvironment: () => ({ input: { coarsePointer: state.coarsePointer } }),
   InlineSourceBoundary: () => <span />,
 }));
@@ -49,6 +51,7 @@ async function show(openEdit = true) {
       </HtmlInline></div>,
     ),
   );
+  if (!state.readOnly) await act(async () => host.querySelector("button")?.click());
 }
 async function input(value: string) {
   await act(async () => {
@@ -85,43 +88,24 @@ it("只读内容忽略 openEdit，不能打开编辑或回写", async () => {
   expect(state.update).not.toHaveBeenCalled();
   expect(state.remove).not.toHaveBeenCalled();
 });
-it("Enter 保存原始空白与 HTML，关闭 openEdit", async () => {
-  await show();
-  await input(" <i>修改</i> ");
+it("输入立即交给字段绑定，Enter 只关闭，不整段回写节点", async () => {
+  await show(); await input(" <i>修改</i> ");
+  expect(state.input).toHaveBeenCalledWith(" <i>修改</i> ");
   await enter();
-  expect(state.update).toHaveBeenCalledWith({
-    html: " <i>修改</i> ",
-    openEdit: false,
-  });
-  expect(state.remove).not.toHaveBeenCalled();
-});
-it("空白输入确认后删除节点", async () => {
-  await show();
-  await input("  ");
-  await enter();
-  expect(state.remove).toHaveBeenCalledOnce();
-  expect(state.update).not.toHaveBeenCalled();
-});
-
-it("触摸编辑取消不保存草稿，输入事件不冒泡到正文", async () => {
-  state.coarsePointer = true;
-  await show();
-  await input("<i>未保存</i>");
-  await enter();
-  expect(state.outerKeyDown).not.toHaveBeenCalled();
-  expect(state.update).not.toHaveBeenCalled();
-  const cancel = [...host.querySelectorAll("button")].find(button => button.textContent === "取消")!;
-  await act(async () => cancel.click());
-  expect(state.update).toHaveBeenCalledWith({ openEdit: false });
-  expect(state.remove).not.toHaveBeenCalled();
+  expect(state.update).not.toHaveBeenCalled(); expect(state.remove).not.toHaveBeenCalled();
   expect(host.querySelector("input")).toBeNull();
 });
-
-it("触摸编辑通过明确保存按钮提交源码", async () => {
-  state.coarsePointer = true;
-  await show();
-  await input(" <i>手机保存</i> ");
-  const save = [...host.querySelectorAll("button")].find(button => button.textContent === "保存")!;
-  await act(async () => save.click());
-  expect(state.update).toHaveBeenCalledWith({ html: " <i>手机保存</i> ", openEdit: false });
+it("空白字段保留节点，关闭不会误删远端内容", async () => {
+  await show(); await input("  "); await enter();
+  expect(state.input).toHaveBeenCalledWith("  ");
+  expect(state.remove).not.toHaveBeenCalled();
+});
+it("触摸编辑完成只退出浮层，输入事件不冒泡到正文", async () => {
+  state.coarsePointer = true; await show(); await input("<i>已同步</i>");
+  const done = [...host.querySelectorAll("button")].find(button => button.textContent === "完成")!;
+  await act(async () => done.click());
+  expect(state.input).toHaveBeenCalledWith("<i>已同步</i>");
+  expect(state.outerKeyDown).not.toHaveBeenCalled();
+  expect(state.update).not.toHaveBeenCalled(); expect(state.remove).not.toHaveBeenCalled();
+  expect(host.querySelector("input")).toBeNull();
 });

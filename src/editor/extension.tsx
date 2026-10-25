@@ -15,6 +15,8 @@ export const htmlExtension = defineEditorExtension({
   elements: [
     defineEditorElement<HtmlBlockElement>({
       type: "html-block",
+      dataVersion: 1,
+      collaboration: { textFields: ["html"] },
       kind: "block",
       isVoid: true,
       drag: true,
@@ -23,6 +25,8 @@ export const htmlExtension = defineEditorExtension({
     }),
     defineEditorElement<HtmlInlineElement>({
       type: "html-inline",
+      dataVersion: 1,
+      collaboration: { textFields: ["html"] },
       kind: "inline",
       isVoid: true,
       isEmpty: (element) => !element.html,
@@ -58,7 +62,6 @@ export const htmlExtension = defineEditorExtension({
             insertInlineSource(editor, {
               type: "html-inline",
               html: "",
-              openEdit: true,
               children: [{ type: "formatted", text: "" }],
             });
           },
