@@ -18,4 +18,4 @@ pnpm build
 
 同步 manifest.json 与 package.json 版本，提交后推送对应标签（如 v0.1.0）。.github/workflows/release.yml 会冻结安装、运行测试与构建，并上传完整 ZIP 到 GitHub Release。Release 不等于插件中心审核通过。
 
-作者接口见 EDITOR.md 与 API.md。当前使用 SDK 0.17.0，不修改客户端版本。
+作者接口见 EDITOR.md 与 API.md。当前使用 SDK 0.63.0，不修改客户端版本。
