@@ -11,12 +11,18 @@ const state = vi.hoisted(() => ({
   remove: vi.fn(),
   input: vi.fn(),
 }));
-vi.mock("@tau/plugins", () => ({
+vi.mock("@tau/plugins", async () => {
+  const { default: zhCN } = await import("../locales/zh-CN.json");
+  const t = (key: string) => (zhCN as Record<string, string>)[key] ?? key;
+  return {
   useInlineSource: () => state,
   useTextField: () => ({ value: "<b>原文</b>", readOnly: state.readOnly, ready: true, error: null, inputRef: (input: HTMLInputElement | null) => { if (input) input.oninput = () => state.input(input.value); } }),
   usePluginEnvironment: () => ({ input: { coarsePointer: state.coarsePointer } }),
   InlineSourceBoundary: () => <span />,
-}));
+  useI18n: () => ({ t }),
+  defineI18n: (config: unknown) => config,
+  };
+});
 vi.mock("@tau/ui", () => ({
   Input: (props: any) => <input {...props} />,
   Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,

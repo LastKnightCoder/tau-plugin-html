@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { InlineSourceBoundary, useInlineSource, useTextField, usePluginEnvironment, type EditorElementRenderProps } from "@tau/plugins";
+import { InlineSourceBoundary, useI18n, useInlineSource, useTextField, usePluginEnvironment, type EditorElementRenderProps } from "@tau/plugins";
 import { Button, Dialog, DialogBody, Input, Popover } from "@tau/ui";
 import { useRuntimeCss } from "../render/useRuntimeCss";
+import { messages } from "../i18n";
 import type { HtmlInlineElement } from "./types";
 
 export function HtmlInline({ attributes, children, element }: EditorElementRenderProps<HtmlInlineElement>) {
+  const { t } = useI18n(messages);
   const access = useInlineSource(element);
   const source = useTextField(element, "html");
   const readOnly = access.readOnly || source.readOnly;
@@ -21,13 +23,13 @@ export function HtmlInline({ attributes, children, element }: EditorElementRende
   const preview = <span data-tau-html-inline dangerouslySetInnerHTML={{ __html: element.html || "HTML" }} />;
   const editor = <Input ref={attach} defaultValue={source.value} readOnly={readOnly}
     onKeyDown={event => { event.stopPropagation(); if (event.key === "Enter" && !event.nativeEvent.isComposing) { event.preventDefault(); setOpen(false); } }}
-    placeholder="输入 HTML" aria-label="行内 HTML 源码" />;
+    placeholder={t("inline.placeholder")} aria-label={t("inline.sourceLabel")} />;
   return <span {...attributes} className="tau-html-inline">
     <InlineSourceBoundary />
     {css && <style dangerouslySetInnerHTML={{ __html: css }} />}
     {access.readOnly ? <span contentEditable={false}>{preview}</span> : coarsePointer ? <>
-      <button type="button" contentEditable={false} className="tau-html-trigger" aria-label="编辑行内 HTML" onClick={() => setOpen(true)}>{preview}</button>
-      <Dialog open={open} onOpenChange={setOpen} title="编辑行内 HTML" footer={<Button onClick={() => setOpen(false)}>完成</Button>}>
+      <button type="button" contentEditable={false} className="tau-html-trigger" aria-label={t("inline.editLabel")} onClick={() => setOpen(true)}>{preview}</button>
+      <Dialog open={open} onOpenChange={setOpen} title={t("inline.editLabel")} footer={<Button onClick={() => setOpen(false)}>{t("inline.done")}</Button>}>
         <DialogBody><div onKeyDown={event => event.stopPropagation()} onBeforeInput={event => event.stopPropagation()} onInput={event => event.stopPropagation()} onPaste={event => event.stopPropagation()} onCut={event => event.stopPropagation()} onCopy={event => event.stopPropagation()}>{editor}{source.error && <p role="alert">{source.error}</p>}</div></DialogBody>
       </Dialog>
     </> : <Popover open={open} onOpenChange={setOpen} arrow={false} placement="bottom" className="tau-html-input" trigger={<span contentEditable={false} className="tau-html-trigger">{preview}</span>}>
